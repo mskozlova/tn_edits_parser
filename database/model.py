@@ -32,3 +32,8 @@ def set_error_info(pool, chat_id, error_timestamp):
 
 def reset_error_info(pool, chat_id):
     execute_update_query(pool, queries.reset_error_info, chat_id=chat_id)
+    
+
+def get_tracker_info(pool):
+    results = execute_select_query(pool, queries.get_tracker_info)
+    return results

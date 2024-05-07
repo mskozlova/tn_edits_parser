@@ -1,6 +1,10 @@
+import os
 import requests
 
 
-def send_message(message, token, chat_id):
-    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
+TG_TOKEN = os.getenv("TG_TOKEN")
+
+
+def send_message(chat_id, message):
+    url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
     return requests.get(url).json()

@@ -2,41 +2,74 @@ import re
 import requests
 
 
-def get_html(user_id, cookie):
-    url = f"https://tech-nation-visa.smapply.io/rend/{user_id}/dt/?is_applicant=True"
-    
-    headers = {
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-        'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-        'Connection': 'keep-alive',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Cookie': cookie,
-        'Referer': f'https://tech-nation-visa.smapply.io/sub/{user_id}/sprv/',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest',
-        'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"'
-    }
+TN_INIT_URL = "https://tech-nation-visa.smapply.io/prog/"
+TN_LOGIN_URL = "https://tech-nation-visa.smapply.io/acc/l/"
+TN_APP_URL = "https://tech-nation-visa.smapply.io/prog/app/ds/"
 
-    r = requests.get(
-        url=url,
-        headers=headers
+
+class Application:
+    def __init__(self, name, reference_id, submitted_ts, last_edited_ts):
+        self.name = name
+        self.reference_id = reference_id
+        self.submitted_ts = submitted_ts
+        self.last_edited_ts = last_edited_ts
+
+
+def create_session():
+    session = requests.Session()
+    response = session.get(TN_INIT_URL)
+    response.raise_for_status()
+    csrf_token = re.findall("name='csrfmiddlewaretoken' value='([a-zA-Z\d]+)'", response.text)[0]
+    return session, csrf_token
+
+
+def login(email, password, session, csrf_token):
+    session.post(
+        url=TN_LOGIN_URL,
+        headers={
+            "Referer": TN_LOGIN_URL,
+        },
+        data={
+            "next": "/prog/",
+            "email": email,
+            "password": password,
+            "csrfmiddlewaretoken": csrf_token,
+        },
+        allow_redirects=True
     )
-    r.raise_for_status()
-    return r.json().get("html", "")
-  
 
-def parse_last_edited(html):
-    prefix = "<strong>Last edited:</strong>"
-    postfix = "</small>"
-    if prefix in html:
-        last_edited_time = re.findall(f"{prefix}([^<]+){postfix}", html)
-        if len(last_edited_time) != 1:
-            raise ValueError(f"Error while parsing edit time. No time found or multiple times found. HTML: {html}")
-        return last_edited_time[0].strip()
 
-    raise ValueError(f"Unexpected HTML format. 'Last edited' not found. HTML: {html}")
+def get_applications(session):
+    page_number = 1
+    applications = []
+    
+    while True:
+        page = session.get(
+            url=TN_APP_URL,
+            data={"page": str(page_number)}
+        )
+        page.raise_for_status()
+        applications.extend(page.json().get("results", []))
+        
+        if not page.json().get("has_next", False):
+            break
+        page_number += 1
+    
+    return applications
+
+
+def get_last_application(email, password):
+    session, csrf_token = create_session()
+    login(email, password, session, csrf_token)
+    applications = get_applications(session)
+    
+    if len(applications) == 0:
+        return Application()
+    
+    last_application = sorted(applications, key=lambda a: a["submitted_date"])[-1]
+    return Application(
+        last_application.get("user", {}).get("name"),
+        last_application.get("reference_id"),
+        last_application.get("submitted_date"),
+        last_application.get("last_edited"),
+    )

@@ -1,5 +1,6 @@
 LAST_EDITED_TABLE_PATH = "last_edited"
 ERRORS_TABLE_PATH = "errors"
+TRACKER_INFO_TABLE_PATH = "tracker_info"
 
 
 get_last_edited = f"""
@@ -41,4 +42,15 @@ reset_error_info = f"""
 
     UPSERT INTO `{ERRORS_TABLE_PATH}` (chat_id, error_timestamp)
     VALUES ($chat_id, NULL);
+"""
+
+get_tracker_info = f"""
+    SELECT
+        chat_id,
+        email,
+        password,
+        last_reference_id,
+        last_edited,
+        last_error_timestamp,
+    FROM `{TRACKER_INFO_TABLE_PATH}`
 """
