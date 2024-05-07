@@ -6,9 +6,16 @@ class Update:
     def __init__(self, chat_id, message):
         self.chat_id = chat_id
         self.message = message
+
+
+class Status:
+    def __init__(self, db_entry, application):
+        self.db_entry = db_entry
+        self.application = application
         
-    def __str__(self):
-        return f"Chat ID: {self.chat_id}, message: {self.message}"
+    
+    def process(self):
+        return True, Update(self.db_entry["chat_id"], "something!") # or False, None
 
 
 def get_updates(ydb_pool):
@@ -17,9 +24,16 @@ def get_updates(ydb_pool):
 
     for entry in tracked_accounts:
         application = get_last_application(entry["email"], entry["password"])
-        updates.append(Update(entry["chat_id"], application.last_edited_ts))
+        do_send, update = Status(entry, application).process()
+        if do_send:
+            updates.append(update)
         
     return updates
+
+
+# "new edit"
+# "error"
+# "error resolved"
 
 
     # do_send = False
