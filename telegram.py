@@ -1,6 +1,6 @@
 import os
-import requests
 
+import requests
 
 TG_TOKEN = os.getenv("TG_TOKEN")
 
