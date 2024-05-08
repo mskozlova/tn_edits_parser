@@ -1,3 +1,4 @@
+STATES_TABLE_PATH = "states"
 TRACKER_INFO_TABLE_PATH = "tracker_info"
 
 
@@ -43,22 +44,23 @@ update_tracker_info = f"""
     SELECT * FROM $updated_rows;
 """
 
-add_tracking = """
+add_tracking = f"""
     DECLARE $chat_id AS Int64;
     DECLARE $email AS Utf8;
     DECLARE $password AS Utf8;
     
-    UPSERT INTO `{TRACKER_INFO_TABLE_PATH}` (chat_id, email, password)
-    VALUES ($chat_id, $email, $password);
+    UPSERT INTO `{TRACKER_INFO_TABLE_PATH}`
+        (chat_id, email, password, last_reference_id, last_edited, last_error_timestamp)
+    VALUES ($chat_id, $email, $password, NULL, NULL, NULL);
 """
 
-get_chat_trackings = """
+get_chat_trackings = f"""
     DECLARE $chat_id AS Int64;
     
     SELECT email FROM `{TRACKER_INFO_TABLE_PATH}`;
 """
 
-delete_tracking = """
+delete_tracking = f"""
     DECLARE $chat_id AS Int64;
     DECLARE $email AS Utf8;
 
@@ -66,4 +68,20 @@ delete_tracking = """
     WHERE
         chat_id == $chat_id
         AND email == $email;
+"""
+
+get_user_state = f"""
+    DECLARE $chat_id AS Uint64;
+
+    SELECT state
+    FROM `{STATES_TABLE_PATH}`
+    WHERE chat_id == $chat_id;
+"""
+
+set_user_state = f"""
+    DECLARE $chat_id AS Uint64;
+    DECLARE $state AS Utf8?;
+
+    UPSERT INTO `{STATES_TABLE_PATH}` (`chat_id`, `state`)
+    VALUES ($chat_id, $state);
 """

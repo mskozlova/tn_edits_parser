@@ -57,7 +57,7 @@ def handle_password(message, bot, pool):
         texts.TRACKING_STARTED.format(email),
         reply_markup=keyboards.EMPTY,
     )
-    # deleting password from chat history
+    # deleting password from the chat history
     bot.delete_message(message.chat.id, message.id)
 
 

@@ -1,3 +1,5 @@
+import json
+
 from database import queries
 from database.utils import execute_select_query, execute_update_query
 
@@ -34,3 +36,22 @@ def delete_tracking(pool, chat_id, email):
     execute_update_query(
         pool, queries.delete_tracking, chat_id=chat_id, email=email
     )
+    
+
+def get_state(pool, chat_id):
+    results = execute_select_query(pool, queries.get_user_state, chat_id=chat_id)
+    if len(results) == 0:
+        return None
+    if results[0]["state"] is None:
+        return None
+    return json.loads(results[0]["state"])
+
+
+def set_state(pool, chat_id, state):
+    execute_update_query(
+        pool, queries.set_user_state, chat_id=chat_id, state=json.dumps(state)
+    )
+
+
+def clear_state(pool, chat_id):
+    execute_update_query(pool, queries.set_user_state, chat_id=chat_id, state=None)

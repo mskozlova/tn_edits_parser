@@ -19,20 +19,20 @@ class StateYDBStorage(StateStorageBase):
         """
         Set data for a user in a particular chat.
         """
-        if db_model.get_state(self.pool, user_id) is None:
+        if db_model.get_state(self.pool, chat_id) is None:
             return False
 
-        full_state = db_model.get_state(self.pool, user_id)
+        full_state = db_model.get_state(self.pool, chat_id)
         full_state["data"][key] = value
 
-        db_model.set_state(self.pool, user_id, full_state)
+        db_model.set_state(self.pool, chat_id, full_state)
         return True
 
     def get_data(self, chat_id, user_id):
         """
         Get data for a user in a particular chat.
         """
-        full_state = db_model.get_state(self.pool, user_id)
+        full_state = db_model.get_state(self.pool, chat_id)
         if full_state:
             return full_state.get("data", {})
 
@@ -44,32 +44,32 @@ class StateYDBStorage(StateStorageBase):
 
         data = self.get_data(chat_id, user_id)
         full_state = {"state": state, "data": data}
-        db_model.set_state(self.pool, user_id, full_state)
+        db_model.set_state(self.pool, chat_id, full_state)
         return True
 
     def delete_state(self, chat_id, user_id):
         """
         Delete state for a particular user.
         """
-        if db_model.get_state(self.pool, user_id) is None:
+        if db_model.get_state(self.pool, chat_id) is None:
             return False
 
-        db_model.clear_state(self.pool, user_id)
+        db_model.clear_state(self.pool, chat_id)
         return True
 
     def reset_data(self, chat_id, user_id):
         """
         Reset data for a particular user in a chat.
         """
-        full_state = db_model.get_state(self.pool, user_id)
+        full_state = db_model.get_state(self.pool, chat_id)
         if full_state:
             full_state["data"] = {}
-            db_model.set_state(self.pool, user_id, full_state)
+            db_model.set_state(self.pool, chat_id, full_state)
             return True
         return False
 
     def get_state(self, chat_id, user_id):
-        states = db_model.get_state(self.pool, user_id)
+        states = db_model.get_state(self.pool, chat_id)
         if states is None:
             return None
         return states.get("state")
@@ -78,10 +78,10 @@ class StateYDBStorage(StateStorageBase):
         return StateContext(self, chat_id, user_id)
 
     def save(self, chat_id, user_id, data):
-        full_state = db_model.get_state(self.pool, user_id)
+        full_state = db_model.get_state(self.pool, chat_id)
         if full_state:
             full_state["data"] = data
-            db_model.set_state(self.pool, user_id, full_state)
+            db_model.set_state(self.pool, chat_id, full_state)
             return True
 
 

@@ -61,7 +61,7 @@ class Status:
                 False,
                 Update(
                     self.db_entry,
-                    f"First edit registered 🏁\n{self.application.name}\n{self.db_entry['email']}\n"
+                    f"🏁 First edit registered\n{self.application.name}\n{self.db_entry['email']}\n"
                     + f"Reference ID: {self.application.reference_id}\n"
                     + f"Submitted on: {self.application.submitted_ts}\n\n"
                     f"Last edited: {self.application.last_edited_ts}",
@@ -80,7 +80,7 @@ class Status:
                 False,
                 Update(
                     self.db_entry,
-                    f"New edit! 🎉\n{self.application.name}\n{self.db_entry['email']}\n"
+                    f"🎉 New edit!\n{self.application.name}\n{self.db_entry['email']}\n"
                     + f"Reference ID: {self.application.reference_id}\n"
                     + f"Submitted on: {self.application.submitted_ts}\n\n"
                     f"Last edited: {self.application.last_edited_ts}",
