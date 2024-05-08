@@ -4,7 +4,7 @@ import time
 from database.ydb_settings import get_ydb_pool
 from logs import logger
 from telegram import send_message
-from tracker import get_updates
+from tracker import get_updates, save_updates
 
 
 YDB_ENDPOINT = os.getenv("YDB_ENDPOINT")
@@ -19,9 +19,14 @@ def handler(event, context):
     
     logger.debug(f"Updates: {list(map(str, updates))}")
     
+    notified_updates = []
     for update in updates:
-        send_message(chat_id=update.chat_id, message=update.message)
+        status_code = send_message(chat_id=update.db_entry["chat_id"], message=update.message)
+        if status_code == 200:
+            notified_updates.append(update)
         time.sleep(0.5)
+        
+    save_updates(pool, notified_updates)
     
     logger.debug("Finished execution")
     

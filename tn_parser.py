@@ -57,7 +57,7 @@ def get_applications(session):
     
     return applications
 
-
+# TODO: timeouts, sleeps, retries
 def get_last_application(email, password):
     session, csrf_token = create_session()
     login(email, password, session, csrf_token)
