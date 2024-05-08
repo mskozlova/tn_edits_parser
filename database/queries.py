@@ -9,7 +9,7 @@ get_tracker_info = f"""
         last_reference_id,
         last_edited,
         last_error_timestamp,
-    FROM `{TRACKER_INFO_TABLE_PATH}`
+    FROM `{TRACKER_INFO_TABLE_PATH}`;
 """
 
 update_tracker_info = f"""
@@ -41,4 +41,29 @@ update_tracker_info = f"""
 
     UPSERT INTO `{TRACKER_INFO_TABLE_PATH}`
     SELECT * FROM $updated_rows;
+"""
+
+add_tracking = """
+    DECLARE $chat_id AS Int64;
+    DECLARE $email AS Utf8;
+    DECLARE $password AS Utf8;
+    
+    UPSERT INTO `{TRACKER_INFO_TABLE_PATH}` (chat_id, email, password)
+    VALUES ($chat_id, $email, $password);
+"""
+
+get_chat_trackings = """
+    DECLARE $chat_id AS Int64;
+    
+    SELECT email FROM `{TRACKER_INFO_TABLE_PATH}`;
+"""
+
+delete_tracking = """
+    DECLARE $chat_id AS Int64;
+    DECLARE $email AS Utf8;
+
+    DELETE FROM `{TRACKER_INFO_TABLE_PATH}`
+    WHERE
+        chat_id == $chat_id
+        AND email == $email;
 """

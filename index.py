@@ -10,7 +10,7 @@ YDB_ENDPOINT = os.getenv("YDB_ENDPOINT")
 YDB_DATABASE = os.getenv("YDB_DATABASE")
 
 
-def handler(event, context):
+def cron_handler(event, context):
     logger.debug("Started execution")
 
     pool = get_ydb_pool(YDB_ENDPOINT, YDB_DATABASE)
