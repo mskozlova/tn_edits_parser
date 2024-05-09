@@ -1,6 +1,7 @@
 from bot import keyboards, states
 from database import model as db_model
 from logs import logged_execution
+from pwd_cipher import AESCipher
 from user_interaction import texts
 
 
@@ -50,7 +51,7 @@ def handle_password(message, bot, pool):
         password = message.text
 
     bot.delete_state(message.from_user.id, message.chat.id)
-    db_model.add_tracking(pool, message.chat.id, email, password)
+    db_model.add_tracking(pool, message.chat.id, email, AESCipher().encrypt(password))
 
     bot.send_message(
         message.chat.id,

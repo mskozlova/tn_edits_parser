@@ -4,6 +4,8 @@ import time
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
+from pwd_cipher import AESCipher
+
 TN_INIT_URL = "https://tech-nation-visa.smapply.io/prog/"
 TN_LOGIN_URL = "https://tech-nation-visa.smapply.io/acc/l/"
 TN_APP_URL = "https://tech-nation-visa.smapply.io/prog/app/ds/"
@@ -42,7 +44,7 @@ def login(email, password, session, csrf_token):
         data={
             "next": "/prog/",
             "email": email,
-            "password": password,
+            "password": AESCipher().decrypt(password),
             "csrfmiddlewaretoken": csrf_token,
         },
         allow_redirects=True,

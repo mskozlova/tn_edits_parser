@@ -45,7 +45,7 @@ class Status:
                 self.db_entry["last_error_timestamp"] = int(time.time())
                 return True, True, Update(
                     self.db_entry,
-                    f"❌ An error occured\n{self.db_entry['email']}\n{self.exception}",
+                    f"💔 An error occured\n{self.db_entry['email']}\n{self.exception}",
                 )
             return False, True, None
 
@@ -84,6 +84,17 @@ class Status:
                     + f"Reference ID: {self.application.reference_id}\n"
                     + f"Submitted on: {self.application.submitted_ts}\n\n"
                     f"Last edited: {self.application.last_edited_ts}",
+                ),
+            )
+            
+        if self.db_entry["last_error_timestamp"] is not None:
+            self.db_entry["last_error_timestamp"] = None
+            return (
+                True,
+                True,
+                Update(
+                    self.db_entry,
+                    f"❤️‍🩹 Error resolved\n{self.db_entry['email']}\nNo edit updates.",
                 ),
             )
 

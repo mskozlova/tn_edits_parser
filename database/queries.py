@@ -16,7 +16,7 @@ get_tracker_info = f"""
 update_tracker_info = f"""
     DECLARE $chat_ids AS List<Int64>;
     DECLARE $emails AS List<Utf8>;
-    DECLARE $last_reference_ids AS List<Uint64?>;
+    DECLARE $last_reference_ids AS List<Utf8?>;
     DECLARE $last_editeds AS List<Utf8?>;
     DECLARE $last_error_timestamps AS List<Uint64?>;
 
@@ -47,7 +47,7 @@ update_tracker_info = f"""
 add_tracking = f"""
     DECLARE $chat_id AS Int64;
     DECLARE $email AS Utf8;
-    DECLARE $password AS Utf8;
+    DECLARE $password AS String;
     
     UPSERT INTO `{TRACKER_INFO_TABLE_PATH}`
         (chat_id, email, password, last_reference_id, last_edited, last_error_timestamp)
