@@ -43,7 +43,7 @@ class Status:
         if self.exception is not None:
             if self.db_entry["last_error_timestamp"] is None:
                 self.db_entry["last_error_timestamp"] = int(time.time())
-                return True, Update(
+                return True, True, Update(
                     self.db_entry,
                     f"❌ An error occured\n{self.db_entry['email']}\n{self.exception}",
                 )

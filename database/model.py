@@ -28,7 +28,7 @@ def add_tracking(pool, chat_id, email, password):
 
 
 def get_chat_trackings(pool, chat_id):
-    results = execute_select_query(queries.get_chat_trackings, chat_id=chat_id)
+    results = execute_select_query(pool, queries.get_chat_trackings, chat_id=chat_id)
     return [result["email"] for result in results]
 
 
