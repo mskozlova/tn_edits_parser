@@ -4,6 +4,7 @@ import time
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
+from logs import logger
 from pwd_cipher import AESCipher
 
 TN_INIT_URL = "https://tech-nation-visa.smapply.io/prog/"
@@ -12,6 +13,10 @@ TN_APP_URL = "https://tech-nation-visa.smapply.io/prog/app/ds/"
 
 TIMEOUT_S = 2
 SLEEP_BETWEEN_REQUESTS_S = 0.5
+
+
+class WrongCredentials(Exception):
+    pass
 
 
 class Application:
@@ -36,13 +41,12 @@ def create_session():
 
 
 def login(email, password, session, csrf_token):
-    session.post(
+    return session.post(
         url=TN_LOGIN_URL,
         headers={
             "Referer": TN_LOGIN_URL,
         },
         data={
-            "next": "/prog/",
             "email": email,
             "password": AESCipher().decrypt(password),
             "csrfmiddlewaretoken": csrf_token,
@@ -62,7 +66,6 @@ def get_applications(session):
         )
         page.raise_for_status()
         applications.extend(page.json().get("results", []))
-
         if not page.json().get("has_next", False):
             break
         page_number += 1
@@ -70,13 +73,19 @@ def get_applications(session):
     return applications
 
 
-# TODO: timeouts, sleeps, retries
 def get_last_application(email, password):
+    logger.debug(f"Getting last application {email} - creating session")
     session, csrf_token = create_session()
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
-    login(email, password, session, csrf_token)
+    
+    logger.debug(f"Getting last application {email} - logging in")
+    login_page = login(email, password, session, csrf_token)
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
+    
+    logger.debug(f"Getting last application {email} - getting all apllications")
     applications = get_applications(session)
+    
+    logger.debug(f"Getting last application {email} - results: {login_page.content}, {applications}")
     
     submitted_applications = []
     for application in applications:
@@ -93,3 +102,19 @@ def get_last_application(email, password):
         last_application.get("submitted_date"),
         last_application.get("last_edited"),
     )
+
+
+def check_password(email, password):
+    logger.debug(f"Checking password {email} - creating session")
+    session, csrf_token = create_session()
+    time.sleep(SLEEP_BETWEEN_REQUESTS_S)
+    
+    logger.debug(f"Checking password {email}, {password} - logging in")
+    login(email, password, session, csrf_token)
+    time.sleep(SLEEP_BETWEEN_REQUESTS_S)
+    
+    logger.debug(f"Checking password {email} - getting home page")
+    home_page = session.get(url=TN_INIT_URL)
+    
+    logger.debug(f"Checking password {email}. Home page url: {home_page.url}")
+    return home_page.url == TN_INIT_URL

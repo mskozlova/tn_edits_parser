@@ -2,6 +2,7 @@ from bot import keyboards, states
 from database import model as db_model
 from logs import logged_execution
 from pwd_cipher import AESCipher
+from tn_parser import check_password
 from user_interaction import texts
 
 
@@ -48,16 +49,25 @@ def handle_email(message, bot, pool):
 def handle_password(message, bot, pool):
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         email = data["email"]
-        password = message.text
+        password = AESCipher().encrypt(message.text.strip())
 
+    is_password_ok = check_password(email, password)
     bot.delete_state(message.from_user.id, message.chat.id)
-    db_model.add_tracking(pool, message.chat.id, email, AESCipher().encrypt(password))
-
-    bot.send_message(
-        message.chat.id,
-        texts.TRACKING_STARTED.format(email),
-        reply_markup=keyboards.EMPTY,
-    )
+    
+    if is_password_ok:
+        db_model.add_tracking(pool, message.chat.id, email, password)
+        bot.send_message(
+            message.chat.id,
+            texts.TRACKING_STARTED.format(email),
+            reply_markup=keyboards.EMPTY,
+        )
+    else:
+        bot.send_message(
+            message.chat.id,
+            texts.TRACKING_FAILED,
+            reply_markup=keyboards.EMPTY,
+        )
+        
     # deleting password from the chat history
     bot.delete_message(message.chat.id, message.id)
 

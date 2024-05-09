@@ -18,3 +18,5 @@ EMAIL_DELETED = "Tracking stopped!"
 CANCEL = "Cancelled!"
 
 TRACKING_STARTED = "✅ You now track edits for account {}.\nI'll notify you when the latest application is edited from now on.\nGood luck!"
+
+TRACKING_FAILED = "❌ Login failed.\nPlease check credentials and try one more time: /track"

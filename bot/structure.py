@@ -61,7 +61,6 @@ def get_delete_handlers():
 
 def create_bot(bot_token, pool):
     state_storage = bot_states.StateYDBStorage(pool)
-    logger.debug("Creating bot")
     bot = TeleBot(bot_token, state_storage=state_storage)
     
     handlers = []
@@ -69,7 +68,6 @@ def create_bot(bot_token, pool):
     handlers.extend(get_track_handlers())
     handlers.extend(get_delete_handlers())
     
-    logger.debug(f"Adding {len(handlers)} handlers")
     for handler in handlers:
         bot.register_message_handler(
             partial(handler.callback, pool=pool), **handler.kwargs, pass_bot=True
