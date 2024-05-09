@@ -75,11 +75,16 @@ def get_last_application(email, password):
     login(email, password, session, csrf_token)
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
     applications = get_applications(session)
+    
+    submitted_applications = []
+    for application in applications:
+        if application.get("is_submitted", False):
+            submitted_applications.append(application)
 
-    if len(applications) == 0:
+    if len(submitted_applications) == 0:
         return Application()
 
-    last_application = sorted(applications, key=lambda a: a["submitted_date"])[-1]
+    last_application = sorted(submitted_applications, key=lambda a: a["submitted_date"])[-1]
     return Application(
         last_application.get("user", {}).get("name"),
         last_application.get("reference_id"),
