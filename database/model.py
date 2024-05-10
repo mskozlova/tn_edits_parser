@@ -33,10 +33,8 @@ def get_chat_trackings(pool, chat_id):
 
 
 def delete_tracking(pool, chat_id, email):
-    execute_update_query(
-        pool, queries.delete_tracking, chat_id=chat_id, email=email
-    )
-    
+    execute_update_query(pool, queries.delete_tracking, chat_id=chat_id, email=email)
+
 
 def get_state(pool, chat_id):
     results = execute_select_query(pool, queries.get_user_state, chat_id=chat_id)

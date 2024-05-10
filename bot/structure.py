@@ -4,7 +4,6 @@ from telebot import TeleBot, custom_filters
 
 from bot import handlers as handlers
 from bot import states as bot_states
-
 from logs import logger
 
 
@@ -62,12 +61,12 @@ def get_delete_handlers():
 def create_bot(bot_token, pool):
     state_storage = bot_states.StateYDBStorage(pool)
     bot = TeleBot(bot_token, state_storage=state_storage)
-    
+
     handlers = []
     handlers.extend(get_start_handlers())
     handlers.extend(get_track_handlers())
     handlers.extend(get_delete_handlers())
-    
+
     for handler in handlers:
         bot.register_message_handler(
             partial(handler.callback, pool=pool), **handler.kwargs, pass_bot=True

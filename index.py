@@ -48,9 +48,9 @@ def chat_handler(event, _):
     bot = create_bot(TG_TOKEN, pool)
 
     message = telebot.types.Update.de_json(event["body"])
-    
+
     bot.process_new_updates([message])
-    
+
     return {
         "statusCode": 200,
         "body": "!",

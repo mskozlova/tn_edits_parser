@@ -18,9 +18,7 @@ def handle_track(message, bot, pool):
         texts.EMAIL,
         reply_markup=keyboards.get_reply_keyboard(["/cancel"]),
     )
-    bot.set_state(
-        message.from_user.id, states.TrackState.email, message.chat.id
-    )
+    bot.set_state(message.from_user.id, states.TrackState.email, message.chat.id)
 
 
 @logged_execution
@@ -53,7 +51,7 @@ def handle_password(message, bot, pool):
 
     is_password_ok = check_password(email, password)
     bot.delete_state(message.from_user.id, message.chat.id)
-    
+
     if is_password_ok:
         db_model.add_tracking(pool, message.chat.id, email, password)
         bot.send_message(
@@ -67,7 +65,7 @@ def handle_password(message, bot, pool):
             texts.TRACKING_FAILED,
             reply_markup=keyboards.EMPTY,
         )
-        
+
     # deleting password from the chat history
     bot.delete_message(message.chat.id, message.id)
 

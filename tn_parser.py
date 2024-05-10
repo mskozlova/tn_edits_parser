@@ -77,16 +77,18 @@ def get_last_application(email, password):
     logger.debug(f"Getting last application {email} - creating session")
     session, csrf_token = create_session()
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
-    
+
     logger.debug(f"Getting last application {email} - logging in")
     login_page = login(email, password, session, csrf_token)
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
-    
+
     logger.debug(f"Getting last application {email} - getting all apllications")
     applications = get_applications(session)
-    
-    logger.debug(f"Getting last application {email} - results: {login_page.content}, {applications}")
-    
+
+    logger.debug(
+        f"Getting last application {email} - results: {login_page.content}, {applications}"
+    )
+
     submitted_applications = []
     for application in applications:
         if application.get("is_submitted", False):
@@ -95,7 +97,9 @@ def get_last_application(email, password):
     if len(submitted_applications) == 0:
         return Application()
 
-    last_application = sorted(submitted_applications, key=lambda a: a["submitted_date"])[-1]
+    last_application = sorted(
+        submitted_applications, key=lambda a: a["submitted_date"]
+    )[-1]
     return Application(
         last_application.get("user", {}).get("name"),
         last_application.get("reference_id"),
@@ -108,13 +112,13 @@ def check_password(email, password):
     logger.debug(f"Checking password {email} - creating session")
     session, csrf_token = create_session()
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
-    
+
     logger.debug(f"Checking password {email}, {password} - logging in")
     login(email, password, session, csrf_token)
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
-    
+
     logger.debug(f"Checking password {email} - getting home page")
     home_page = session.get(url=TN_INIT_URL)
-    
+
     logger.debug(f"Checking password {email}. Home page url: {home_page.url}")
     return home_page.url == TN_INIT_URL
