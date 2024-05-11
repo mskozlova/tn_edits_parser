@@ -21,7 +21,7 @@ def cron_handler(event, _):
     pool = get_ydb_pool(YDB_ENDPOINT, YDB_DATABASE)
     updates = get_updates(pool)
 
-    # logger.debug(f"Updates: {list(map(str, updates))}")
+    logger.debug(f"Notifying: {len(updates)} updates")
 
     notified_updates = []
     for update in updates:
@@ -35,6 +35,7 @@ def cron_handler(event, _):
             notified_updates.append(update)
         time.sleep(TG_SLEEP_S)
 
+    logger.debug(f"Notified: {len(notified_updates)} updates")
     save_updates(pool, notified_updates)
 
     logger.debug("Finished execution")

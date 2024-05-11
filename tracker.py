@@ -80,14 +80,6 @@ class Status:
         elif self.db_entry["last_error_timestamp"] is not None:
             self.tags.append("RESOLVED ERROR")
             self.db_entry["last_error_timestamp"] = None
-            # return (
-            #     True,
-            #     True,
-            #     Update(
-            #         self.db_entry,
-            #         f"❤️‍🩹 Error resolved\n{self.db_entry['email']}\nNo edit updates.",
-            #     ),
-            # )
         
         logger.debug(
             f"Processing status DONE. Chat ID: {self.db_entry['chat_id']}, email: {self.db_entry['email']}",
