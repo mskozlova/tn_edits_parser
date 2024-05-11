@@ -1,10 +1,21 @@
 import os
-
 import requests
+import time
+
+TECH_CHAT_ID = os.getenv("TECH_CHAT_ID")
 
 
-def send_message(chat_id, message, token, is_error=False):
-    # TODO: send errors to a special chat
-    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
-    response = requests.get(url)
-    return response.status_code
+def send_messages(user_chat_id, status, token, sleep_s):
+    user_message, technical_message = status.get_messages()
+    
+    if user_message is not None:
+        url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={user_chat_id}&text={user_message}"
+        response = requests.get(url)
+        user_status_code = response.status_code
+        
+    time.sleep(sleep_s)
+        
+    if technical_message is not None:
+        url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={TECH_CHAT_ID}&text={technical_message}"
+        requests.get(url)
+
