@@ -10,6 +10,7 @@ get_tracker_info = f"""
         last_reference_id,
         last_edited,
         last_error_timestamp,
+        last_updated_timestamp,
     FROM `{TRACKER_INFO_TABLE_PATH}`;
 """
 
@@ -19,6 +20,7 @@ update_tracker_info = f"""
     DECLARE $last_reference_ids AS List<Utf8?>;
     DECLARE $last_editeds AS List<Utf8?>;
     DECLARE $last_error_timestamps AS List<Uint64?>;
+    DECLARE $last_updated_timestamps AS List<Uint64?>;
 
     $updated_rows = (
         SELECT
@@ -27,6 +29,7 @@ update_tracker_info = f"""
             entry.2 AS last_reference_id,
             entry.3 AS last_edited,
             entry.4 AS last_error_timestamp,
+            entry.5 AS last_updated_timestamp,
         FROM (
             SELECT
                 ListZip(
@@ -35,6 +38,7 @@ update_tracker_info = f"""
                     $last_reference_ids,
                     $last_editeds,
                     $last_error_timestamps,
+                    $last_updated_timestamps,
                 ) AS entries
         )
         FLATTEN LIST BY entries AS entry
@@ -48,10 +52,11 @@ add_tracking = f"""
     DECLARE $chat_id AS Int64;
     DECLARE $email AS Utf8;
     DECLARE $password AS String;
+    DECLARE $last_updated_timestamp AS Uint64;
     
     UPSERT INTO `{TRACKER_INFO_TABLE_PATH}`
-        (chat_id, email, password, last_reference_id, last_edited, last_error_timestamp)
-    VALUES ($chat_id, $email, $password, NULL, NULL, NULL);
+        (chat_id, email, password, last_reference_id, last_edited, last_error_timestamp, last_updated_timestamp)
+    VALUES ($chat_id, $email, $password, NULL, NULL, NULL, $last_updated_timestamp);
 """
 
 get_chat_trackings = f"""

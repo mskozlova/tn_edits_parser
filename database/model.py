@@ -18,12 +18,13 @@ def update_tracker_info(pool, db_entries):
         last_reference_ids=[e.db_entry["last_reference_id"] for e in db_entries],
         last_editeds=[e.db_entry["last_edited"] for e in db_entries],
         last_error_timestamps=[e.db_entry["last_error_timestamp"] for e in db_entries],
+        last_updated_timestamps=[e.db_entry["last_updated_timestamp"] for e in db_entries],
     )
 
 
-def add_tracking(pool, chat_id, email, password):
+def add_tracking(pool, chat_id, email, password, last_updated_timestamp):
     execute_update_query(
-        pool, queries.add_tracking, chat_id=chat_id, email=email, password=password
+        pool, queries.add_tracking, chat_id=chat_id, email=email, password=password, last_updated_timestamp=last_updated_timestamp
     )
 
 

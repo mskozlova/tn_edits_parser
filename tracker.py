@@ -63,6 +63,7 @@ class Status:
             self.db_entry["last_edited"] = self.application.last_edited_ts
             self.db_entry["last_reference_id"] = self.application.reference_id
             self.db_entry["last_error_timestamp"] = None
+            self.db_entry["last_updated_timestamp"] = int(time.time())
             self.tags.append("FIRST EDIT")
 
         elif (
@@ -75,6 +76,7 @@ class Status:
             self.db_entry["last_edited"] = self.application.last_edited_ts
             self.db_entry["last_reference_id"] = self.application.reference_id
             self.db_entry["last_error_timestamp"] = None
+            self.db_entry["last_updated_timestamp"] = int(time.time())
             self.tags.append("NEW EDIT")
 
         elif self.db_entry["last_error_timestamp"] is not None:

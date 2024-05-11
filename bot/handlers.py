@@ -1,3 +1,5 @@
+import time
+
 from bot import keyboards, states
 from database import model as db_model
 from logs import logged_execution
@@ -53,7 +55,7 @@ def handle_password(message, bot, pool):
     bot.delete_state(message.from_user.id, message.chat.id)
 
     if is_password_ok:
-        db_model.add_tracking(pool, message.chat.id, email, password)
+        db_model.add_tracking(pool, message.chat.id, email, password, int(time.time()))
         bot.send_message(
             message.chat.id,
             texts.TRACKING_STARTED.format(email),
