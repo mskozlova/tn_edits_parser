@@ -62,7 +62,9 @@ add_tracking = f"""
 get_chat_trackings = f"""
     DECLARE $chat_id AS Int64;
     
-    SELECT email FROM `{TRACKER_INFO_TABLE_PATH}`;
+    SELECT email
+    FROM `{TRACKER_INFO_TABLE_PATH}`
+    WHERE chat_id = $chat_id;
 """
 
 delete_tracking = f"""
@@ -76,7 +78,7 @@ delete_tracking = f"""
 """
 
 get_user_state = f"""
-    DECLARE $chat_id AS Uint64;
+    DECLARE $chat_id AS Int64;
 
     SELECT state
     FROM `{STATES_TABLE_PATH}`
@@ -84,7 +86,7 @@ get_user_state = f"""
 """
 
 set_user_state = f"""
-    DECLARE $chat_id AS Uint64;
+    DECLARE $chat_id AS Int64;
     DECLARE $state AS Utf8?;
 
     UPSERT INTO `{STATES_TABLE_PATH}` (`chat_id`, `state`)

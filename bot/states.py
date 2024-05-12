@@ -2,6 +2,7 @@ from telebot.handler_backends import State, StatesGroup
 from telebot.storage.base_storage import StateContext, StateStorageBase
 
 from database import model as db_model
+from logs import logger
 
 
 # based on Telebot example
@@ -39,6 +40,10 @@ class StateYDBStorage(StateStorageBase):
         return {}
 
     def set_state(self, chat_id, user_id, state):
+        logger.debug(
+            f"[STATES] Set state: chat_id {chat_id}, user_id {user_id}",
+            extra={"state": state}
+        )
         if hasattr(state, "name"):
             state = state.name
 
@@ -69,7 +74,12 @@ class StateYDBStorage(StateStorageBase):
         return False
 
     def get_state(self, chat_id, user_id):
+        logger.debug(f"[STATES] Get state: chat_id {chat_id}, user_id {user_id}")
         states = db_model.get_state(self.pool, chat_id)
+        logger.debug(
+            f"[STATES] Get state DONE: chat_id {chat_id}, user_id {user_id}",
+            extra={"states": states}
+        )
         if states is None:
             return None
         return states.get("state")

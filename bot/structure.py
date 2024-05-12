@@ -69,7 +69,8 @@ def create_bot(bot_token, pool):
 
     for handler in handlers:
         bot.register_message_handler(
-            partial(handler.callback, pool=pool), **handler.kwargs, pass_bot=True
+            partial(handler.callback, pool=pool), **handler.kwargs, pass_bot=True,
+            chat_types=["private", "group", "supergroup"]
         )
 
     bot.add_custom_filter(custom_filters.StateFilter(bot))
