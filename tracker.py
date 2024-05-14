@@ -110,7 +110,7 @@ class Status:
                 f"🎉 New edit!\n{self.application.name}\n{self.db_entry['email']}\n"
                 f"Reference ID: {self.application.reference_id}\n"
                 f"Submitted on: {self.application.submitted_ts}\n\n"
-                f"Last edited: {self.application.last_edited_ts}",
+                f"Last edited: {self.application.last_edited_ts}"
             )
             
         if "ERROR" in self.tags:
