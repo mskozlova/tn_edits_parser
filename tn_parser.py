@@ -31,6 +31,7 @@ def create_session():
     retries = Retry(total=3, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
     session = requests.Session()
     session.mount("http://", HTTPAdapter(max_retries=retries))
+    session.verify = False
 
     response = session.get(TN_INIT_URL, timeout=TIMEOUT_S)
     response.raise_for_status()
