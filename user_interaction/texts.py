@@ -13,6 +13,8 @@ PASSWORD = "🗝 Enter password:"
 
 EMAIL_TO_DELETE = "📩 Enter email you want to stop tracking.\n\nTracked emails:\n{}"
 
+EMAIL_NOT_FOUND = "Email not found. Please choose one of your tracked emails:\n{}"
+
 EMAIL_DELETED = "Tracking stopped!"
 
 CANCEL = "Cancelled!"

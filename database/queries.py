@@ -11,7 +11,8 @@ get_tracker_info = f"""
         last_edited,
         last_error_timestamp,
         last_updated_timestamp,
-    FROM `{TRACKER_INFO_TABLE_PATH}`;
+    FROM `{TRACKER_INFO_TABLE_PATH}`
+    WHERE NOT is_deleted;
 """
 
 update_tracker_info = f"""
@@ -55,8 +56,8 @@ add_tracking = f"""
     DECLARE $last_updated_timestamp AS Uint64;
     
     UPSERT INTO `{TRACKER_INFO_TABLE_PATH}`
-        (chat_id, email, password, last_reference_id, last_edited, last_error_timestamp, last_updated_timestamp)
-    VALUES ($chat_id, $email, $password, NULL, NULL, NULL, $last_updated_timestamp);
+        (chat_id, email, password, last_reference_id, last_edited, last_error_timestamp, last_updated_timestamp, is_deleted)
+    VALUES ($chat_id, $email, $password, NULL, NULL, NULL, $last_updated_timestamp, False);
 """
 
 get_chat_trackings = f"""
@@ -64,17 +65,18 @@ get_chat_trackings = f"""
     
     SELECT email
     FROM `{TRACKER_INFO_TABLE_PATH}`
-    WHERE chat_id = $chat_id;
+    WHERE
+        chat_id = $chat_id
+        AND NOT is_deleted;
 """
 
 delete_tracking = f"""
     DECLARE $chat_id AS Int64;
     DECLARE $email AS Utf8;
 
-    DELETE FROM `{TRACKER_INFO_TABLE_PATH}`
-    WHERE
-        chat_id == $chat_id
-        AND email == $email;
+    UPSERT INTO `{TRACKER_INFO_TABLE_PATH}`
+        (chat_id, email, is_deleted)
+    VALUES ($chat_id, $email, True)
 """
 
 get_user_state = f"""

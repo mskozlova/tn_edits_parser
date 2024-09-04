@@ -87,6 +87,16 @@ def handle_delete_account(message, bot, pool):
 @logged_execution
 def handle_finish_delete_account(message, bot, pool):
     email = message.text.strip()
+    
+    emails = db_model.get_chat_trackings(pool, message.chat.id)
+    if email not in emails:
+        bot.send_message(
+            message.chat.id,
+            texts.EMAIL_NOT_FOUND.format("\n".join(sorted(emails))),
+            reply_markup=keyboards.get_reply_keyboard(["/cancel"]),
+        )
+        return
+    
     bot.delete_state(message.from_user.id, message.chat.id)
     db_model.delete_tracking(pool, message.chat.id, email)
     bot.send_message(
