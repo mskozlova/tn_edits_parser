@@ -12,6 +12,7 @@ TN_LOGIN_URL = "https://tech-nation-visa.smapply.io/acc/l/"
 TN_APP_URL = "https://tech-nation-visa.smapply.io/prog/app/ds/"
 
 TIMEOUT_S = 2
+N_RETRIES = 5
 SLEEP_BETWEEN_REQUESTS_S = 0.5
 
 
@@ -28,10 +29,16 @@ class Application:
 
 
 def create_session():
-    retries = Retry(total=3, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+    retries = Retry(
+        total=N_RETRIES,
+        connect=N_RETRIES,
+        read=N_RETRIES,
+        other=N_RETRIES,
+        backoff_factor=0.1,
+        status_forcelist=[500, 502, 503, 504]
+    )
     session = requests.Session()
     session.mount("http://", HTTPAdapter(max_retries=retries))
-    session.verify = False
 
     response = session.get(TN_INIT_URL, timeout=TIMEOUT_S)
     response.raise_for_status()
