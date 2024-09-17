@@ -1,5 +1,6 @@
 import re
 import time
+import traceback
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
@@ -12,7 +13,7 @@ TN_LOGIN_URL = "https://tech-nation-visa.smapply.io/acc/l/"
 TN_APP_URL = "https://tech-nation-visa.smapply.io/prog/app/ds/"
 
 TIMEOUT_S = 2
-N_RETRIES = 5
+N_RETRIES = 3
 SLEEP_BETWEEN_REQUESTS_S = 0.5
 
 
@@ -26,22 +27,49 @@ class Application:
         self.reference_id = reference_id
         self.submitted_ts = submitted_ts
         self.last_edited_ts = last_edited_ts
+        
+
+def retry(func):
+    def wrap(*args, **kwargs):
+        error = None
+        for i in range(N_RETRIES):
+            logger.debug(f"Running {func.__name__}, attempt {i + 1}")
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                logger.error(
+                    f"Failed {func.__name__}, attempt {i + 1}",
+                    extra={
+                        "error": e,
+                        "traceback": traceback.format_exc(),
+                    }
+                )
+                error = e
+                if i == N_RETRIES - 1:
+                    break
+                time.sleep(SLEEP_BETWEEN_REQUESTS_S * 2 ** i)
+        raise error
+    return wrap
+
+
+@retry
+def get(session, **kwargs):
+    response = session.get(**kwargs)
+    response.raise_for_status()
+    return response
+
+
+@retry
+def post(session, **kwargs):
+    response = session.post(**kwargs)
+    response.raise_for_status()
+    return response
 
 
 def create_session():
-    retries = Retry(
-        total=N_RETRIES,
-        connect=N_RETRIES,
-        read=N_RETRIES,
-        other=N_RETRIES,
-        backoff_factor=0.1,
-        status_forcelist=[500, 502, 503, 504]
-    )
     session = requests.Session()
-    session.mount("http://", HTTPAdapter(max_retries=retries))
 
-    response = session.get(TN_INIT_URL, timeout=TIMEOUT_S)
-    response.raise_for_status()
+    response = get(session, url=TN_INIT_URL, timeout=TIMEOUT_S)
     csrf_token = re.findall(
         "name='csrfmiddlewaretoken' value='([a-zA-Z\d]+)'", response.text
     )[0]
@@ -49,7 +77,8 @@ def create_session():
 
 
 def login(email, password, session, csrf_token):
-    return session.post(
+    return post(
+        session,
         url=TN_LOGIN_URL,
         headers={
             "Referer": TN_LOGIN_URL,
@@ -69,10 +98,10 @@ def get_applications(session):
     applications = []
 
     while True:
-        page = session.get(
+        page = get(
+            session,
             url=TN_APP_URL, data={"page": str(page_number)}, timeout=TIMEOUT_S
         )
-        page.raise_for_status()
         applications.extend(page.json().get("results", []))
         if not page.json().get("has_next", False):
             break
@@ -126,7 +155,7 @@ def check_password(email, password):
     time.sleep(SLEEP_BETWEEN_REQUESTS_S)
 
     logger.debug(f"Checking password {email} - getting home page")
-    home_page = session.get(url=TN_INIT_URL)
+    home_page = get(session, url=TN_INIT_URL)
 
     logger.debug(f"Checking password {email}. Home page url: {home_page.url}")
     return home_page.url == TN_INIT_URL
