@@ -35,7 +35,7 @@ def retry(func):
         for i in range(N_RETRIES):
             logger.debug(
                 f"Running {func.__name__}, attempt {i + 1}",
-                extra={"args": args, "kwargs": kwargs})
+                extra={"Args": args, "Kwargs": kwargs})
             try:
                 return func(*args, **kwargs)
             except Exception as e:
@@ -44,8 +44,8 @@ def retry(func):
                     extra={
                         "error": e,
                         "traceback": traceback.format_exc(),
-                        "args": args,
-                        "kwargs": kwargs,
+                        "Args": args,
+                        "Kwargs": kwargs,
                     }
                 )
                 error = e
