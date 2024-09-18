@@ -33,7 +33,9 @@ def retry(func):
     def wrap(*args, **kwargs):
         error = None
         for i in range(N_RETRIES):
-            logger.debug(f"Running {func.__name__}, attempt {i + 1}")
+            logger.debug(
+                f"Running {func.__name__}, attempt {i + 1}",
+                extra={"args": args, "kwargs": kwargs})
             try:
                 return func(*args, **kwargs)
             except Exception as e:
@@ -42,6 +44,8 @@ def retry(func):
                     extra={
                         "error": e,
                         "traceback": traceback.format_exc(),
+                        "args": args,
+                        "kwargs": kwargs,
                     }
                 )
                 error = e
